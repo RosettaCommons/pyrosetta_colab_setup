@@ -164,4 +164,5 @@ def install_pyrosetta(prefix='prefix'):
     from importlib import reload
     reload(site)
 
-    import pyrosetta
+    print(f'PyRosetta installed at {prefix!r}... Please click "Runtime → Restart runtime" before using it.')
+    #import pyrosetta
