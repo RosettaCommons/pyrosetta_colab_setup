@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# :noTabs=true:
+
+# (c) Copyright Rosetta Commons Member Institutions.
+## @brief  Various scripts for PyRosetta Colab integration 
+## @author Kathy Le, Sergey Lyskov
+
+
 def setup(drivepath='/My Drive', install=None):
   if install is not None: #assuming the user installed the .whl version of PyRosetta
     # Mounting Google Drive and add it to Python sys path  
