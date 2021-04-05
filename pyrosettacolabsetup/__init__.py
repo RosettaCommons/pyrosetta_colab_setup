@@ -126,6 +126,10 @@ def mount_pyrosetta_install(prefix='prefix'):
     pyrosetta_package_path = pyrosetta_install_prefix_path + f'/lib/python{sys.version_info.major}.{sys.version_info.minor}/site-packages'
     if pyrosetta_package_path not in sys.path: sys.path.append(pyrosetta_package_path)
 
+    import site
+    from importlib import reload
+    reload(site)
+      
     return pyrosetta_install_prefix_path
 
 
@@ -137,11 +141,11 @@ def install_pyrosetta(prefix='prefix'):
 
     if not os.path.isdir(pyrosetta_install_prefix_path): os.mkdir(pyrosetta_install_prefix_path)
 
-    #try:
-    #    import pyrosetta
-    #    print(f'PyRosetta install detected at google-drive/{prefix}... doing noting... (if you want to reinstall PyRosetta please delete {prefix} dir from you GoogleDrive)')
-    #    return
-    #except ModuleNotFoundError: pass
+    try:
+        import pyrosetta
+        print(f'PyRosetta install detected at google-drive/{prefix}... doing noting... (if you want to reinstall PyRosetta please delete {prefix} dir from you GoogleDrive)')
+        return
+    except ModuleNotFoundError: pass
 
 
     print('To obtain PyRosetta license please visit https://www.rosettacommons.org/software/license-and-download')
@@ -154,8 +158,8 @@ def install_pyrosetta(prefix='prefix'):
     print('Installing PyRosetta...')
     execute_through_pty(f'pip3 install --prefix="{pyrosetta_install_prefix_path}" pyrosetta*.whl')
 
-    #import site
-    #from importlib import reload
-    #reload(site)
+    import site
+    from importlib import reload
+    reload(site)
 
-    #import pyrosetta
+    import pyrosetta
