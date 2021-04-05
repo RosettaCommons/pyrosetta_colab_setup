@@ -130,14 +130,14 @@ def mount_pyrosetta_install(prefix='prefix'):
     from importlib import reload
     reload(site)
       
-    return pyrosetta_install_prefix_path
+    return pyrosetta_install_prefix_path, pyrosetta_package_path
 
 
 
 def install_pyrosetta(prefix='prefix'):
     if os.getenv("DEBUG"): print('DEBUG mode enable, doing nothing...'); return
 
-    pyrosetta_install_prefix_path = mount_pyrosetta_install(prefix)
+    pyrosetta_install_prefix_path, pyrosetta_package_path = mount_pyrosetta_install(prefix)
 
     if not os.path.isdir(pyrosetta_install_prefix_path): os.mkdir(pyrosetta_install_prefix_path)
 
@@ -158,6 +158,8 @@ def install_pyrosetta(prefix='prefix'):
     print('Installing PyRosetta...')
     execute_through_pty(f'pip3 install --prefix="{pyrosetta_install_prefix_path}" pyrosetta*.whl')
 
+    if pyrosetta_package_path not in sys.path: sys.path.append(pyrosetta_package_path)
+    
     import site
     from importlib import reload
     reload(site)
