@@ -16,7 +16,7 @@ def setup(drivepath='/My Drive', install=None):
 
     if 'google.colab' in sys.modules:
       from google.colab import drive
-      drive.mount(google_drive_mount_point)
+      drive._mount(google_drive_mount_point)
 
     if not os.getenv("DEBUG"):
       google_drive = google_drive_mount_point + '/My Drive'
@@ -47,7 +47,7 @@ def setup(drivepath='/My Drive', install=None):
 
       import os, sys, time
       from google.colab import drive
-      drive.mount(google_drive_mount_point)
+      drive._mount(google_drive_mount_point)
     
       google_drive = google_drive_mount_point + drivepath
       google_drive_prefix = google_drive + '/prefix'
@@ -118,7 +118,7 @@ def mount_pyrosetta_install(prefix='prefix'):
 
     if 'google.colab' in sys.modules:
         from google.colab import drive
-        drive.mount(google_drive_mount_point)
+        drive._mount(google_drive_mount_point)
 
     google_drive = google_drive_mount_point + '/MyDrive'
     pyrosetta_install_prefix_path = google_drive + '/' + prefix
