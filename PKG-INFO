@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: pyrosettacolabsetup
-Version: 0.2
+Version: 0.3
 Summary: Mounts Google Drive for PyRosetta use in Google Colaboratory
 Home-page: https://github.com/kathyle9/pyrosettacolabsetup
 Author: kathyle9
