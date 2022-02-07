@@ -2,13 +2,15 @@
 # :noTabs=true:
 
 # (c) Copyright Rosetta Commons Member Institutions.
-## @brief  Various scripts for PyRosetta Colab integration 
+## @brief  Various scripts for PyRosetta Colab integration
 ## @author Kathy Le, Sergey Lyskov
 
 
+import sys
+
 def setup(drivepath='/My Drive', install=None):
   if install is not None: #assuming the user installed the .whl version of PyRosetta
-    # Mounting Google Drive and add it to Python sys path  
+    # Mounting Google Drive and add it to Python sys path
     google_drive_mount_point = '/content/google_drive'
 
     import os, sys, time, subprocess
@@ -27,18 +29,17 @@ def setup(drivepath='/My Drive', install=None):
         print('Need Python-3.7 to run!')
         sys.exit(1)
 
-      pyrosetta_distr_path = google_drive + '/PyRosetta' 
-    
+      pyrosetta_distr_path = google_drive + '/PyRosetta'
+
       # finding path to wheel package, if multiple packages is found take first one
       # replace this with `wheel_path = pyrosetta_distr_path + /<wheel-file-name>.whl` if you want to use particular whl file
       wheel_path = pyrosetta_distr_path + '/' + [ f for f in os.listdir(pyrosetta_distr_path) if f.endswith('.whl')][0]
-    
+
       print(f'Using PyRosetta wheel package: {wheel_path}')
- 
+
       subprocess.check_call([sys.executable, '-m', 'pip', 'install', wheel_path])
 
   else: #assuming the user installed the MinSizeRel version of PyRosetta
-    import sys
     is_colab = 'google.colab' in sys.modules
     if is_colab:
       # Mounting Google Drive and add it to Python sys path
@@ -48,7 +49,7 @@ def setup(drivepath='/My Drive', install=None):
       import os, sys, time
       from google.colab import drive
       drive.mount(google_drive_mount_point)
-    
+
       google_drive = google_drive_mount_point + drivepath
       google_drive_prefix = google_drive + '/prefix'
 
@@ -63,8 +64,8 @@ def setup(drivepath='/My Drive', install=None):
     else:
       print("Not in Colab. pyrosettacolabsetup not needed.")
 
-      
- 
+
+
 import os, sys, subprocess, time as time_module
 
 def execute_through_pty(command_line):
@@ -111,7 +112,19 @@ def execute_through_pty(command_line):
     return exit_code, output
 
 
-def mount_pyrosetta_install(prefix='prefix'):
+_DEFAULT_PYROSETTA_INSTALL_PREFIX_ = 'PyRosetta/colab.bin'
+
+def check_for_rosetta_so_file(prefix, pyrosetta_package_path):
+    rosetta_so_path = pyrosetta_package_path + f'/pyrosetta/rosetta.so'
+    if os.path.isfile(rosetta_so_path):
+        print(f'PyRosetta installed at {prefix!r}... Please click "Runtime → Restart runtime" before using it.')
+        return False
+    else:
+        print(f'ERROR ERROR ERROR: looks PyRosetta like install procedure has not worked correctly!!!\nERROR ERROR ERROR: Please remove dir {prefix!r} from your Google Drive and then re-run install procedure again!\n\n')
+        return True
+
+
+def mount_pyrosetta_install(prefix=_DEFAULT_PYROSETTA_INSTALL_PREFIX_, suppres_rosetta_so_check=False):
     if os.getenv("DEBUG"): print('DEBUG mode enable, doing nothing...'); return
 
     google_drive_mount_point = '/content/google_drive'
@@ -129,24 +142,25 @@ def mount_pyrosetta_install(prefix='prefix'):
     import site
     from importlib import reload
     reload(site)
-      
+
+    if not suppres_rosetta_so_check: check_for_rosetta_so_file(prefix, pyrosetta_package_path)
+
     return pyrosetta_install_prefix_path, pyrosetta_package_path
 
 
 
-def install_pyrosetta(prefix='prefix'):
+def install_pyrosetta(prefix=_DEFAULT_PYROSETTA_INSTALL_PREFIX_):
     if os.getenv("DEBUG"): print('DEBUG mode enable, doing nothing...'); return
 
-    pyrosetta_install_prefix_path, pyrosetta_package_path = mount_pyrosetta_install(prefix)
+    pyrosetta_install_prefix_path, pyrosetta_package_path = mount_pyrosetta_install(prefix, suppres_rosetta_so_check=True)
 
-    if not os.path.isdir(pyrosetta_install_prefix_path): os.mkdir(pyrosetta_install_prefix_path)
+    if not os.path.isdir(pyrosetta_install_prefix_path): os.makedirs(pyrosetta_install_prefix_path)
 
     try:
         import pyrosetta
         print(f'PyRosetta install detected at google-drive/{prefix}... doing noting... (if you want to reinstall PyRosetta please delete {prefix} dir from you GoogleDrive)')
         return
     except ModuleNotFoundError: pass
-
 
     print('To obtain PyRosetta license please visit https://www.rosettacommons.org/software/license-and-download')
     login = input('Please enter you RC license login:')
@@ -159,10 +173,11 @@ def install_pyrosetta(prefix='prefix'):
     execute_through_pty(f'pip3 install --prefix="{pyrosetta_install_prefix_path}" pyrosetta*.whl')
 
     if pyrosetta_package_path not in sys.path: sys.path.append(pyrosetta_package_path)
-    
+
     import site
     from importlib import reload
     reload(site)
 
-    print(f'PyRosetta installed at {prefix!r}... Please click "Runtime → Restart runtime" before using it.')
+    if check_for_rosetta_so_file(prefix, pyrosetta_package_path): sys.exit(1)
+
     #import pyrosetta
