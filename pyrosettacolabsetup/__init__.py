@@ -150,15 +150,20 @@ def install_pyrosetta_on_google_drive(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INS
     pyrosetta = loader.load_module("pyrosetta")
 
 
-def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_):
-    if os.getenv("DEBUG"): print('DEBUG mode enable, doing nothing...'); return
+def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_, cache_wheel_on_google_drive=True):
 
     try:
         import pyrosetta
         return
     except ModuleNotFoundError: pass
 
-    pyrosetta_wheels_path = mount_google_drive() + '/' + prefix + '/wheels'
+    if cache_wheel_on_google_drive: pyrosetta_root = mount_google_drive() + '/' + prefix
+    else:
+      pyrosetta_root = '/' + prefix
+      os.makedirs(pyrosetta_root)
+
+    if cache_wheel_on_google_drive: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
+    else: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
 
     # see if PyRosetta wheel is already downloaded...
     print(f'Looking for compatible PyRosetta wheel file at google-drive/{prefix}/wheels...')
@@ -168,9 +173,9 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
 
     if wheels:
         wheel = pyrosetta_wheels_path + '/' + sorted(wheels)[-1]
-        print(f'Found compatible wheel: {wheel}')
+        print(f'Found compatible wheel: {pyrosetta_wheels_path}/{wheel}')
     else:
-        wheel = download_pyrosetta_wheel(mount_google_drive() + '/' + prefix, pyrosetta_wheels_path)
+        wheel = download_pyrosetta_wheel(pyrosetta_root, pyrosetta_wheels_path)
         print(f'Installing PyRosetta wheel {wheel!r}...')
 
     execute_through_pty(f'pip3 install {wheel}')

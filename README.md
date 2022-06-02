@@ -10,4 +10,5 @@ docker run -it python /bin/bash
 pip install --user --upgrade setuptools wheel twine
 rm dist/* ; python setup.py sdist bdist_wheel
 python -m twine upload dist/*
+python -m twine upload --repository pyrosettacolabsetup dist/*
 ```
