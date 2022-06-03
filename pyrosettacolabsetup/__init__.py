@@ -173,7 +173,7 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
 
     if wheels:
         wheel = pyrosetta_wheels_path + '/' + sorted(wheels)[-1]
-        print(f'Found compatible wheel: {pyrosetta_wheels_path}/{wheel}')
+        print(f'Found compatible wheel: {wheel}')
     else:
         wheel = download_pyrosetta_wheel(pyrosetta_root, pyrosetta_wheels_path)
         print(f'Installing PyRosetta wheel {wheel!r}...')
