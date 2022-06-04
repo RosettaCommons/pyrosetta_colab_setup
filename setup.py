@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='pyrosettacolabsetup',
-      version='1.0.4',
+      version='1.0.6',
       description='Mounts Google Drive for PyRosetta use in Google Colaboratory',
       url='https://github.com/kathyle9/pyrosettacolabsetup',
       author='kathyle9',

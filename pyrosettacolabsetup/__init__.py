@@ -104,6 +104,8 @@ def download_pyrosetta_wheel(prefix, location):
     login = input('Please enter you RC license login:')
     password  = input('Please enter you RC license password:')
 
+    if not os.path.isdir(prefix): os.makedirs(prefix)
+
     with tempfile_module.TemporaryDirectory(dir=prefix) as tmpdirname:
         print('Downloading PyRosetta package...')
         execute_through_pty(f'wget --directory-prefix={tmpdirname} -c --content-disposition --http-user={login} --http-password={password} {_PYROSETTA_RELEASES_URL_}/PyRosetta4.MinSizeRel.python{sys.version_info.major}{sys.version_info.minor}.ubuntu.wheel/.latest')
@@ -160,7 +162,8 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
     if cache_wheel_on_google_drive: pyrosetta_root = mount_google_drive() + '/' + prefix
     else:
       pyrosetta_root = '/' + prefix
-      os.makedirs(pyrosetta_root)
+
+    if not os.path.isdir(pyrosetta_root): os.makedirs(pyrosetta_root)
 
     if cache_wheel_on_google_drive: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
     else: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
