@@ -11,7 +11,7 @@ import os, os.path, sys, subprocess, shutil, tempfile as tempfile_module, time a
 _DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_ = 'PyRosetta/colab.bin'
 _PYROSETTA_EAST_MIRROR_ = 'https://graylab.jhu.edu/download/PyRosetta4/archive/release'
 _PYROSETTA_WEST_MIRROR_ = 'https://west.rosettacommons.org/pyrosetta/release/release'
-_PYROSETTA_RELEASES_URL_ = _PYROSETTA_WEST_MIRROR_
+_PYROSETTA_RELEASES_URLS_ = [_PYROSETTA_WEST_MIRROR_, _PYROSETTA_EAST_MIRROR_]
 
 def execute_through_pty(command_line):
     import pty, codecs
@@ -96,7 +96,7 @@ def mount_pyrosetta_google_drive_install(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_
     return pyrosetta_install_prefix_path, pyrosetta_package_path
 
 
-def download_pyrosetta_wheel(prefix, location):
+def download_pyrosetta_wheel(prefix, location, mirror, serialization):
     ''' download appropriate PyRosetta wheel package to specified `location` and return path to it
         while making sure that partial download is not appear at target location
     '''
@@ -108,7 +108,11 @@ def download_pyrosetta_wheel(prefix, location):
 
     with tempfile_module.TemporaryDirectory(dir=prefix) as tmpdirname:
         print('Downloading PyRosetta package...')
-        execute_through_pty(f'wget --directory-prefix={tmpdirname} -c --content-disposition --http-user={login} --http-password={password} {_PYROSETTA_RELEASES_URL_}/PyRosetta4.MinSizeRel.python{sys.version_info.major}{sys.version_info.minor}.ubuntu.wheel/.latest')
+
+        type, extras = ('Release', '.cxx11thread.serialization') if serialization else ('MinSizeRel', '')
+        url = f'{_PYROSETTA_RELEASES_URLS_[mirror]}/PyRosetta4.{type}.python{sys.version_info.major}{sys.version_info.minor}.ubuntu{extras}.wheel/.latest'
+
+        execute_through_pty(f'wget --directory-prefix={tmpdirname} -c --content-disposition --http-user={login} --http-password={password} {url}')
         for f in os.listdir(tmpdirname):
             if f.startswith('pyrosetta-') and f.endswith('.whl'):
                 if not os.path.isdir(location): os.makedirs(location)
@@ -152,7 +156,7 @@ def install_pyrosetta_on_google_drive(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INS
     pyrosetta = loader.load_module("pyrosetta")
 
 
-def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_, cache_wheel_on_google_drive=True):
+def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_, cache_wheel_on_google_drive=True, mirror=0, serialization=False):
 
     try:
         import pyrosetta
@@ -165,11 +169,12 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
 
     if not os.path.isdir(pyrosetta_root): os.makedirs(pyrosetta_root)
 
-    if cache_wheel_on_google_drive: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
-    else: pyrosetta_wheels_path = pyrosetta_root + '/wheels'
+    wheels_suffix = '/wheels.serialization' if serialization else '/wheels'
+    if cache_wheel_on_google_drive: pyrosetta_wheels_path = pyrosetta_root + wheels_suffix
+    else: pyrosetta_wheels_path = pyrosetta_root + wheels_suffix
 
     # see if PyRosetta wheel is already downloaded...
-    print(f'Looking for compatible PyRosetta wheel file at google-drive/{prefix}/wheels...')
+    print(f'Looking for compatible PyRosetta wheel file at google-drive/{prefix}/{wheels_suffix}...')
     if os.path.isdir(pyrosetta_wheels_path):
         wheels = [ f for f in os.listdir(pyrosetta_wheels_path) if f.startswith('pyrosetta-2') and f.endswith('.whl') and f'-cp{sys.version_info.major}{sys.version_info.minor}-' in f]
     else: wheels = []
@@ -178,7 +183,7 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
         wheel = pyrosetta_wheels_path + '/' + sorted(wheels)[-1]
         print(f'Found compatible wheel: {pyrosetta_wheels_path}/{wheel}')
     else:
-        wheel = download_pyrosetta_wheel(pyrosetta_root, pyrosetta_wheels_path)
+        wheel = download_pyrosetta_wheel(pyrosetta_root, pyrosetta_wheels_path, mirror=mirror, serialization=serialization)
         print(f'Installing PyRosetta wheel {wheel!r}...')
 
     execute_through_pty(f'pip3 install {wheel}')
