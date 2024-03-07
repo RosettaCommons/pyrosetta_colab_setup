@@ -100,9 +100,11 @@ def download_pyrosetta_wheel(prefix, location, mirror, serialization):
     ''' download appropriate PyRosetta wheel package to specified `location` and return path to it
         while making sure that partial download is not appear at target location
     '''
-    print('To obtain PyRosetta license please visit https://www.rosettacommons.org/software/license-and-download')
-    login = input('Please enter you RC license login:')
-    password  = input('Please enter you RC license password:')
+    #print('To obtain PyRosetta license please visit https://www.rosettacommons.org/software/license-and-download')
+    #login = input('Please enter you RC license login:')
+    #password  = input('Please enter you RC license password:')
+
+    login, password = '', ''
 
     if not os.path.isdir(prefix): os.makedirs(prefix)
 
@@ -172,6 +174,9 @@ def install_pyrosetta_on_colab(prefix=_DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PR
     wheels_suffix = '/wheels.serialization' if serialization else '/wheels'
     if cache_wheel_on_google_drive: pyrosetta_wheels_path = pyrosetta_root + wheels_suffix
     else: pyrosetta_wheels_path = pyrosetta_root + wheels_suffix
+
+    print('\nNote that USE OF PyRosetta FOR COMMERCIAL PURPOSES REQUIRE PURCHASE OF A LICENSE.')
+    print('See https://github.com/RosettaCommons/rosetta/blob/main/LICENSE.md or email license@uw.edu for details.\n')
 
     # see if PyRosetta wheel is already downloaded...
     print(f'Looking for compatible PyRosetta wheel file at google-drive/{prefix}/{wheels_suffix}...')
