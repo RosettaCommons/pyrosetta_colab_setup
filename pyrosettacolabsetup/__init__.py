@@ -9,8 +9,8 @@
 import os, os.path, sys, subprocess, shutil, tempfile as tempfile_module, time as time_module
 
 _DEFAULT_PYROSETTA_GOOGLE_DRIVE_INSTALL_PREFIX_ = 'PyRosetta/colab.bin'
-_PYROSETTA_EAST_MIRROR_ = 'https://graylab.jhu.edu/download/PyRosetta4/archive/release'
-_PYROSETTA_WEST_MIRROR_ = 'https://west.rosettacommons.org/pyrosetta/release/release'
+_PYROSETTA_EAST_MIRROR_ = 'https://graylab.jhu.edu/download/PyRosetta4/archive/release-quarterly'
+_PYROSETTA_WEST_MIRROR_ = 'https://west.rosettacommons.org/pyrosetta/quarterly'
 _PYROSETTA_RELEASES_URLS_ = [_PYROSETTA_WEST_MIRROR_, _PYROSETTA_EAST_MIRROR_]
 
 def execute_through_pty(command_line):
@@ -111,8 +111,9 @@ def download_pyrosetta_wheel(prefix, location, mirror, serialization):
     with tempfile_module.TemporaryDirectory(dir=prefix) as tmpdirname:
         print('Downloading PyRosetta package...')
 
-        type, extras = ('Release', '.cxx11thread.serialization') if serialization else ('MinSizeRel', '')
-        url = f'{_PYROSETTA_RELEASES_URLS_[mirror]}/PyRosetta4.{type}.python{sys.version_info.major}{sys.version_info.minor}.ubuntu{extras}.wheel/.latest'
+        type = 'release.cxx11thread.serialization' if serialization else 'release'
+        python_version = f'cp{sys.version_info.major}{sys.version_info.minor}'
+        url = f'{_PYROSETTA_RELEASES_URLS_[mirror]}/{type}/pyrosetta-latest-{python_version}-{python_version}-linux_x86_64.whl'
 
         execute_through_pty(f'wget --directory-prefix={tmpdirname} -c --content-disposition --http-user={login} --http-password={password} {url}')
         for f in os.listdir(tmpdirname):
