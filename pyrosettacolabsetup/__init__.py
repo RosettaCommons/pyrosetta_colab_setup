@@ -113,7 +113,7 @@ def download_pyrosetta_wheel(prefix, location, mirror, serialization):
 
         type = 'release.cxx11thread.serialization' if serialization else 'release'
         python_version = f'cp{sys.version_info.major}{sys.version_info.minor}'
-        url = f'{_PYROSETTA_RELEASES_URLS_[mirror]}/{type}/pyrosetta-latest-{python_version}-{python_version}-linux_x86_64.whl'
+        url = f'{_PYROSETTA_RELEASES_URLS_[mirror]}/{type}/pyrosetta-0-{python_version}-{python_version}-linux_x86_64.whl'
 
         execute_through_pty(f'wget --directory-prefix={tmpdirname} -c --content-disposition --http-user={login} --http-password={password} {url}')
         for f in os.listdir(tmpdirname):
